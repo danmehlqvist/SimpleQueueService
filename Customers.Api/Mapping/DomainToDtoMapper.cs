@@ -5,8 +5,9 @@ namespace Customers.Api.Mapping;
 
 public static class DomainToDtoMapper
 {
-    public static CustomerDto ToCustomerDto(this Customer customer)
+    public static CustomerDto? ToCustomerDto(this Customer customer)
     {
+        if (customer is null) return null;
         return new CustomerDto
         {
             Id = customer.Id,
@@ -15,5 +16,10 @@ public static class DomainToDtoMapper
             FullName = customer.FullName,
             DateOfBirth = customer.DateOfBirth
         };
+    }
+
+    public static IEnumerable<CustomerDto> ToCustomerDtos(this List<Customer> customers)
+    {
+        return customers.Select(x => x.ToCustomerDto()!);
     }
 }

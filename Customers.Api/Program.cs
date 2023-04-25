@@ -30,7 +30,7 @@ SqlMapper.RemoveTypeMap(typeof(Guid?));
 builder.Services.AddSingleton<IDbConnectionFactory>(_ =>
     new SqliteConnectionFactory(config.GetValue<string>("Database:ConnectionString")!));
 builder.Services.AddSingleton<DatabaseInitializer>();
-builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
+builder.Services.AddSingleton<ICustomerRepository, HardcodedCustomerRepository>();
 builder.Services.AddSingleton<ICustomerService, CustomerService>();
 builder.Services.AddSingleton<IGitHubService, GitHubService>();
 

@@ -16,4 +16,9 @@ public static class DtoToDomainMapper
             DateOfBirth = customerDto.DateOfBirth
         };
     }
+
+    public static IEnumerable<Customer> ToCustomers(this List<CustomerDto> customers)
+    {
+        return customers.Select(x => x.ToCustomer());
+    }
 }
