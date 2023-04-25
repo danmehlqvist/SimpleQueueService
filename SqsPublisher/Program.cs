@@ -1,5 +1,7 @@
 ﻿using Amazon.SQS;
 using Amazon.SQS.Model;
+using Shared;
+using Shared.Contracts;
 using System.Text.Json;
 
 namespace SqsPublisher
@@ -8,38 +10,31 @@ namespace SqsPublisher
     {
         static async Task Main(string[] args)
         {
-            // https://sqs.eu-north-1.amazonaws.com/742873788565/customers
-            AmazonSQSClient client = new AmazonSQSClient();
+            Console.WriteLine($"Starting publisher");
 
-            CustomerCreated customer = new CustomerCreated(
-                "danbanan@example.com",
-                "Dan Banan",
-                new DateTime(1976, 01, 07),
-                "danbanan"
-                );
+            IMessageQueue messageQueue = new SqsMessageQueue();
 
-            GetQueueUrlResponse amazonUrl = await client.GetQueueUrlAsync("customers");
+            Console.WriteLine($"Press [any key] to send message");
 
-            var sendMessageRequest = new SendMessageRequest
+            int messageCount = 1;
+
+            while (true)
             {
-                QueueUrl = amazonUrl.QueueUrl,
-                MessageBody = JsonSerializer.Serialize(customer),
-                MessageAttributes = new Dictionary<string, MessageAttributeValue>
-                {
-                    {
-                        "MessageType", new MessageAttributeValue
-                        {
-                            DataType="string",
-                            StringValue = nameof(CustomerCreated)
-                        }
-                    }
-                }
-            };
+                Console.ReadKey();
 
-            SendMessageResponse response = await client.SendMessageAsync(sendMessageRequest);
+                CustomerCreated customer = new CustomerCreated(
+                    $"Message {messageCount++}",
+                    "Dan Banan",
+                    new DateTime(1976, 01, 07),
+                    "nytt meddelande"
+                    );
 
-            Console.WriteLine($"{response.HttpStatusCode}");
-            Console.ReadKey();
+                int statusCode = await messageQueue.SendMessage<CustomerCreated>(customer);
+
+                Console.WriteLine($"Message sent with status code {statusCode}");
+            }
+
+
         }
     }
 }
