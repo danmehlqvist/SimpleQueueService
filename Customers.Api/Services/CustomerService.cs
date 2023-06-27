@@ -1,5 +1,7 @@
-﻿using Customers.Api.Domain;
+﻿using Customers.Api.Contracts.Messages;
+using Customers.Api.Domain;
 using Customers.Api.Mapping;
+using Customers.Api.Messaging;
 using Customers.Api.Repositories;
 using FluentValidation;
 using FluentValidation.Results;
@@ -10,12 +12,13 @@ public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IGitHubService _gitHubService;
+    private readonly ISqsMessenger _sqsMessenger;
 
-    public CustomerService(ICustomerRepository customerRepository, 
-        IGitHubService gitHubService)
+    public CustomerService(ICustomerRepository customerRepository, IGitHubService gitHubService, ISqsMessenger sqsMessenger)
     {
         _customerRepository = customerRepository;
         _gitHubService = gitHubService;
+        _sqsMessenger = sqsMessenger;
     }
 
     public async Task<bool> CreateAsync(Customer customer)
@@ -33,9 +36,14 @@ public class CustomerService : ICustomerService
             var message = $"There is no GitHub user with username {customer.GitHubUsername}";
             throw new ValidationException(message, GenerateValidationError(nameof(customer.GitHubUsername), message));
         }
-        
+
         var customerDto = customer.ToCustomerDto();
-        return await _customerRepository.CreateAsync(customerDto);
+        bool response = await _customerRepository.CreateAsync(customerDto);
+        if (response)
+        {
+            await _sqsMessenger.SendMessageAsync(customer.ToCustomerCreateMessage());
+        }
+        return response;
     }
 
     public async Task<Customer?> GetAsync(Guid id)
@@ -53,25 +61,35 @@ public class CustomerService : ICustomerService
     public async Task<bool> UpdateAsync(Customer customer)
     {
         var customerDto = customer.ToCustomerDto();
-        
+
         var isValidGitHubUser = await _gitHubService.IsValidGitHubUser(customer.GitHubUsername);
         if (!isValidGitHubUser)
         {
             var message = $"There is no GitHub user with username {customer.GitHubUsername}";
             throw new ValidationException(message, GenerateValidationError(nameof(customer.GitHubUsername), message));
         }
-        
-        return await _customerRepository.UpdateAsync(customerDto);
+
+        var response = await _customerRepository.UpdateAsync(customerDto);
+        if (response)
+        {
+            await _sqsMessenger.SendMessageAsync(customer.ToCustomerUpdateMessage());
+        }
+        return response;
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        return await _customerRepository.DeleteAsync(id);
+        bool response = await _customerRepository.DeleteAsync(id);
+        if (response)
+        {
+            await _sqsMessenger.SendMessageAsync(new CustomerDeletedMessage { Id = id });
+        }
+        return response;
     }
 
     private static ValidationFailure[] GenerateValidationError(string paramName, string message)
     {
-        return new []
+        return new[]
         {
             new ValidationFailure(paramName, message)
         };
