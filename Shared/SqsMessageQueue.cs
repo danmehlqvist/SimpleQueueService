@@ -41,7 +41,7 @@ namespace Shared
 
         public async Task PollForMessages<T>(CancellationTokenSource cancellationTokenSource)
         {
-            var cts = new CancellationTokenSource();
+            //var cts = new CancellationTokenSource();
             ReceiveMessageRequest recievedMessageRequest = new()
             {
                 QueueUrl = _amazonUrl,
@@ -49,15 +49,15 @@ namespace Shared
                 MessageAttributeNames = new List<string> { "All" },
             };
 
-            while (!cts.IsCancellationRequested)
+            while (!cancellationTokenSource.IsCancellationRequested)
             {
-                var response = await _client.ReceiveMessageAsync(recievedMessageRequest, cts.Token);
+                ReceiveMessageResponse response = await _client.ReceiveMessageAsync(recievedMessageRequest, cancellationTokenSource.Token);
                 foreach (var message in response.Messages)
                 {
                     Console.WriteLine($"Message arrived at {DateTime.Now}");
                     Console.WriteLine($"MessageID: {message.MessageId}");
                     Console.WriteLine($"Body: {message.Body}");
-                    await _client.DeleteMessageAsync(_amazonUrl, message.ReceiptHandle, cts.Token);
+                    await _client.DeleteMessageAsync(_amazonUrl, message.ReceiptHandle, cancellationTokenSource.Token);
                 }
                 await Task.Delay(1000);
             }

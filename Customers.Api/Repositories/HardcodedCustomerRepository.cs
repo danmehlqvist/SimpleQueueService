@@ -52,10 +52,10 @@ namespace Customers.Api.Repositories
             return Task.FromResult(_customers.ToCustomerDtos());
         }
 
-        public Task<CustomerDto?> GetAsync(Guid id)
+        public Task<CustomerDto> GetAsync(Guid id)
         {
             Customer customer = _customers.SingleOrDefault(x => x.Id == id);
-            if (customer is null) return null;
+            if (customer is null) return Task.FromResult(null as CustomerDto);
 
             return Task.FromResult(customer.ToCustomerDto());
         }
