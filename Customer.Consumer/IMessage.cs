@@ -1,6 +1,8 @@
-﻿namespace Customers.Consumer
+﻿using MediatR;
+
+namespace Customers.Consumer
 {
-    public interface IMessage
+    public interface IMessage: IRequest
     {
     }
 }

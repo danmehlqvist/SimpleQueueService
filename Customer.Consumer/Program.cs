@@ -1,4 +1,5 @@
 using Amazon.SQS;
+using System.Reflection;
 
 namespace Customers.Consumer
 {
@@ -9,10 +10,11 @@ namespace Customers.Consumer
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.Configure<QueueSettings>(builder.Configuration.GetSection(QueueSettings.Key));
             builder.Services.AddRazorPages();
             builder.Services.AddSingleton<IAmazonSQS, AmazonSQSClient>();
             builder.Services.AddHostedService<QueueConsumerService>();
-            builder.Services.Configure<QueueSettings>(builder.Configuration.GetSection(QueueSettings.Key));
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
             var app = builder.Build();
 
