@@ -12,9 +12,9 @@ public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IGitHubService _gitHubService;
-    private readonly ISqsMessenger _sqsMessenger;
+    private readonly ISnsMessenger _sqsMessenger;
 
-    public CustomerService(ICustomerRepository customerRepository, IGitHubService gitHubService, ISqsMessenger sqsMessenger)
+    public CustomerService(ICustomerRepository customerRepository, IGitHubService gitHubService, ISnsMessenger sqsMessenger)
     {
         _customerRepository = customerRepository;
         _gitHubService = gitHubService;

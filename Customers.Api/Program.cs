@@ -1,4 +1,4 @@
-using Amazon.SQS;
+using Amazon.SimpleNotificationService;
 using Customers.Api.Database;
 using Customers.Api.Messaging;
 using Customers.Api.Repositories;
@@ -35,8 +35,8 @@ builder.Services.AddSingleton<DatabaseInitializer>();
 builder.Services.AddSingleton<ICustomerRepository, HardcodedCustomerRepository>();
 builder.Services.AddSingleton<ICustomerService, CustomerService>();
 builder.Services.AddSingleton<IGitHubService, GitHubService>();
-builder.Services.AddSingleton<ISqsMessenger, SqsMessenger>();
-builder.Services.AddSingleton<IAmazonSQS, AmazonSQSClient>();
+builder.Services.AddSingleton<ISnsMessenger, SnsMessenger>();
+builder.Services.AddSingleton<IAmazonSimpleNotificationService, AmazonSimpleNotificationServiceClient>();
 
 builder.Services.Configure<QueueSettings>(builder.Configuration.GetSection(QueueSettings.Key));
 
