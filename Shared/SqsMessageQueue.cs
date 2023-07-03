@@ -9,11 +9,12 @@ namespace Shared
         private readonly AmazonSQSClient _client;
         private readonly string _amazonUrl;
         private const string _messageTypeString = "String";
+        //private readonly string _queueName;
 
-        public SqsMessageQueue()
+        public SqsMessageQueue(string queueName = "customers")
         {
             _client = new AmazonSQSClient();
-            GetQueueUrlResponse queueUrlResponse = _client.GetQueueUrlAsync("customers").Result;
+            GetQueueUrlResponse queueUrlResponse = _client.GetQueueUrlAsync(queueName).Result;
             _amazonUrl = queueUrlResponse.QueueUrl;
         }
 

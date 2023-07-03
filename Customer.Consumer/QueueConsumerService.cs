@@ -59,7 +59,7 @@ namespace Customers.Consumer
                     await _amazonSQS.DeleteMessageAsync(queueUrlResponse.QueueUrl, message.ReceiptHandle, stoppingToken);
                 }
 
-                await Console.Out.WriteLineAsync(".");
+                await Console.Out.WriteLineAsync($"{DateTime.UtcNow.ToLongTimeString()} .");
                 await Task.Delay(1000, stoppingToken);
             }
         }

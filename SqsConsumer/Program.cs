@@ -11,7 +11,9 @@ namespace SqsConsumer
         {
             Console.WriteLine($"Starting Consumer");
 
-            IMessageQueue messageQueue = new SqsMessageQueue();
+            string queueName = args.Length > 0 ? args[0] : "customers";
+
+            IMessageQueue messageQueue = new SqsMessageQueue(queueName);
             await messageQueue.PollForMessages<CustomerCreated>(new CancellationTokenSource());
         }
     }
